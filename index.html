@@ -2,139 +2,108 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Video Call App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Download Center</title>
     <style>
-        /* পুরো পেজের মূল ডিজাইন */
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000; /* কালো ব্যাকগ্রাউন্ড */
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-            overflow-x: hidden;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
+        
+        body, html { 
+            height: 100%; width: 100%; background: #000; 
+            overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* উপরের বড় লাল টেক্সট */
+        .main-wrapper {
+            display: flex; flex-direction: column; height: 100vh;
+            justify-content: space-between; padding: 3vh 5vw; text-align: center;
+        }
+
         .title {
-            color: #ff0000;
-            font-size: 28px;
-            font-weight: 900;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+            font-size: 6.5vw; font-weight: 900; color: #fff; line-height: 1.2;
+            background: linear-gradient(to right, #fff, #ff0055, #ffcc00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        /* সাব-টাইটেল */
-        .description {
-            font-size: 16px;
-            color: #ffffff;
-            margin-bottom: 25px;
-            line-height: 1.4;
+        /* ৩ডি বাটন */
+        .dl-btn {
+            display: block; width: 85%; margin: 3vh auto 2vh auto;
+            padding: 4.5vw; font-size: 7.5vw; font-weight: 900; color: #fff;
+            text-decoration: none; background: linear-gradient(180deg, #ff0000 0%, #990000 100%);
+            border-radius: 50px; border-top: 3px solid #ff7777;
+            border-bottom: 8px solid #550000; box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+            position: relative; cursor: pointer;
         }
 
-        /* ডাউনলোড বাটন স্টাইল */
-        .download-btn {
-            background: linear-gradient(180deg, #ff0000 0%, #a00000 100%);
-            color: white;
-            text-decoration: none;
-            padding: 16px 45px;
-            font-size: 18px;
-            font-weight: bold;
+        .dl-btn:active { transform: translateY(4px); border-bottom: 3px solid #550000; }
+
+        /* লোডিং বার - শুরুতে খালি থাকবে */
+        .load-box {
+            width: 85%; margin: 0 auto; background: #111; height: 9vw;
+            border-radius: 50px; position: relative; overflow: hidden;
+            border: 1px solid #222; display: none; /* শুরুতে লুকানো থাকবে */
+        }
+
+        .bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #ff0055, #ffcc00);
             border-radius: 50px;
-            display: inline-block;
-            box-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
-            transition: all 0.3s ease;
-            margin-bottom: 35px;
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
         }
 
-        /* বাটনে হোভার ইফেক্ট */
-        .download-btn:hover {
-            transform: scale(1.08);
-            box-shadow: 0 0 35px rgba(255, 0, 0, 0.9);
+        .percent-text {
+            position: absolute; width: 100%; left: 0; top: 0;
+            line-height: 9vw; font-size: 4vw; font-weight: 900; color: #fff;
         }
 
-        /* ভিডিও ফ্রেম কন্টেইনার */
-        .video-container {
-            width: 85%;
-            max-width: 380px;
-            border: 4px solid #ff0000; /* লাল বর্ডার */
-            border-radius: 25px;
-            position: relative;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
-            background: #111;
-            overflow: hidden;
-            line-height: 0;
-        }
+        .status { color: #00ff88; font-size: 4.5vw; font-weight: 700; margin-top: 2vh; }
 
-        /* ভিডিও স্টাইল */
-        video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
+        .img-wrap { flex-grow: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 1vh; }
+        .img-wrap img { width: 100%; height: 100%; object-fit: contain; }
 
-        /* ভিডিওর ওপর প্লে আইকন ওভারলে */
-        .play-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.4);
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            pointer-events: none;
-        }
-
-        /* প্লে আইকনের ত্রিভুজ */
-        .play-icon-shape {
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 12px 0 12px 22px;
-            border-color: transparent transparent transparent #ffffff;
-            margin-left: 6px;
-        }
+        /* লোডিং অ্যানিমেশন ক্লাস */
+        .start-load { animation: loadingAnim 4s forwards linear; }
+        @keyframes loadingAnim { 0% { width: 0%; } 100% { width: 100%; } }
     </style>
 </head>
 <body>
 
-    <div class="title">FREE VIDEO CALL SEX</div>
+    <div class="main-wrapper">
+        <div class="top">
+            <h1 class="title">ভিডিও কলে ফ্রিতে সেক্স করতে চাইলে এখনই অ্যাপটি ডাউনলোড করুন</h1>
+            
+            <a href="https://raw.githubusercontent.com/sexbd24/Sexbd/main/Sexy%20Girl.apk" 
+               class="dl-btn" onclick="startDownload()">ডাউনলোড করুন</a>
 
-    <div class="description">
-        The app is free to use<br>
-        Click below to start downloading.
-    </div>
+            <div class="load-box" id="loadBox">
+                <div class="bar" id="progressBar"></div>
+                <div class="percent-text" id="statusText">ডাউনলোড শুরু হচ্ছে...</div>
+            </div>
 
-    <a href="https://raw.githubusercontent.com/sexbd24/Sexbd/main/Sexy%20Girl.apk" download class="download-btn">
-        DOWNLOAD APP NOW
-    </a>
+            <div class="status">● ৮৭৪ জন লাইভে আছে</div>
+        </div>
 
-    <div class="video-container">
-        <video autoplay muted loop playsinline>
-            <source src="https://raw.githubusercontent.com/sexbd24/Video/main/0u82KV3I_720p.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        
-        <div class="play-overlay">
-            <div class="play-icon-shape"></div>
+        <div class="img-wrap">
+            <img src="https://raw.githubusercontent.com/sexbd24/Video/main/IMG_20260507_185112_553.png" alt="Preview">
         </div>
     </div>
+
+    <script>
+        function startDownload() {
+            // লোডিং বক্স দেখাবে
+            document.getElementById('loadBox').style.display = 'block';
+            
+            // লোডিং বার শুরু হবে
+            var bar = document.getElementById('progressBar');
+            bar.classList.add('start-load');
+            
+            // লেখা পরিবর্তন হবে
+            setTimeout(function() {
+                document.getElementById('statusText').innerHTML = "ডাউনলোড হচ্ছে ৫৪%";
+            }, 1500);
+            
+            setTimeout(function() {
+                document.getElementById('statusText').innerHTML = "ডাউনলোড সম্পন্ন হয়েছে!";
+            }, 4000);
+        }
+    </script>
 
 </body>
 </html>
